@@ -39,9 +39,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            v.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                systemBars.bottom
+            )
             insets
         }
 
@@ -57,23 +63,36 @@ class MainActivity : AppCompatActivity() {
             handleLocationAction {
                 locationHelper.fetchCurrentLocation { location ->
                     startLocation = location
-                    tvStart.text = "Start Point: ${location.latitude}, ${location.longitude}"
-                    Toast.makeText(this, "Start point set", Toast.LENGTH_SHORT).show()
+                    tvStart.text =
+                        "Start Point: ${location.latitude}, ${location.longitude}"
+                    Toast.makeText(
+                        this,
+                        "Start point set",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
 
         btnSetEnd.setOnClickListener {
             if (startLocation == null) {
-                Toast.makeText(this, "Set start point first", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Set start point first",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
             handleLocationAction {
                 locationHelper.fetchCurrentLocation { location ->
                     val distance = startLocation!!.distanceTo(location)
-                    tvEnd.text = "End Point: ${location.latitude}, ${location.longitude}"
-                    tvDistance.text = "Distance: %.2f meters".format(distance)
+
+                    tvEnd.text =
+                        "End Point: ${location.latitude}, ${location.longitude}"
+
+                    tvDistance.text =
+                        "Distance: %.2f meters".format(distance)
                 }
             }
         }
@@ -87,8 +106,11 @@ class MainActivity : AppCompatActivity() {
             ) == PackageManager.PERMISSION_GRANTED -> {
                 action()
             }
+
             else -> {
-                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                requestPermissionLauncher.launch(
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
             }
         }
     }
