@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.button.MaterialButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,13 +22,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvStart: TextView
     private lateinit var tvEnd: TextView
     private lateinit var tvDistance: TextView
-    private lateinit var btnSetStart: Button
-    private lateinit var btnSetEnd: Button
+    private lateinit var btnSetStart: MaterialButton
+    private lateinit var btnSetEnd: MaterialButton
 
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+        
+        if (fineGranted || coarseGranted) {
             Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "Location permission is required", Toast.LENGTH_SHORT).show()
@@ -63,7 +66,7 @@ class MainActivity : AppCompatActivity() {
                 locationHelper.fetchCurrentLocation { location ->
                     startLocation = location
                     tvStart.text = "Start Point: ${location.latitude}, ${location.longitude}"
-                    Toast.makeText(this, "Start point set", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Start point captured", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -78,23 +81,26 @@ class MainActivity : AppCompatActivity() {
                 locationHelper.fetchCurrentLocation { location ->
                     val distance = startLocation!!.distanceTo(location)
                     tvEnd.text = "End Point: ${location.latitude}, ${location.longitude}"
-                    tvDistance.text = "Distance: %.2f meters".format(distance)
+                    tvDistance.text = "%.2f meters".format(distance)
+                    Toast.makeText(this, "End point captured and distance calculated", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
     private fun handleLocationAction(action: () -> Unit) {
-        when {
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                action()
-            }
-            else -> {
-                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            }
+        val finePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        val coarsePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+        
+        if (finePermission == PackageManager.PERMISSION_GRANTED || coarsePermission == PackageManager.PERMISSION_GRANTED) {
+            action()
+        } else {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
         }
     }
 }
