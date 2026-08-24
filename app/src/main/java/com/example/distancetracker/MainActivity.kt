@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        
+
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -73,7 +73,11 @@ class MainActivity : AppCompatActivity() {
 
         btnSetEnd.setOnClickListener {
             if (startLocation == null) {
-                Toast.makeText(this, "Set start point first", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Set start point first",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
